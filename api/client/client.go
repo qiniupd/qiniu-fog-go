@@ -49,17 +49,6 @@ func NewQiniuAuthRPCClient(ak, sk string, timeout time.Duration) *rpc.Client {
 	}
 }
 
-func NewQiniuAdminRPCClient(adminMac *qiniumac.Mac, uid uint32, timeout time.Duration) *rpc.Client {
-	return &rpc.Client{
-		Client: &http.Client{
-			Timeout: timeout,
-			Transport: qiniumac.NewAdminTransport(
-				adminMac, fmt.Sprintf("%d/0", uid), http.DefaultTransport,
-			),
-		},
-	}
-}
-
 func NewQboxAuthRPCClient(ak, sk string, timeout time.Duration) *rpc.Client {
 	return &rpc.Client{
 		Client: &http.Client{

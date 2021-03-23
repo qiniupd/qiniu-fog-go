@@ -46,40 +46,6 @@ func Test_SignWithXQiniu(t *testing.T) {
 	assert.Equal(t, exp, act)
 }
 
-func Test_SignAdmin(t *testing.T) {
-	req, err := http.NewRequest("GET", "http://example.com/path/to/api?param=value", nil)
-	req.Header.Set("Content-Type", "application/json")
-
-	act, err := SignAdminRequest(sk, req, su)
-	assert.NoError(t, err)
-
-	h := hmac.New(sha1.New, sk)
-	h.Write([]byte("GET /path/to/api?param=value\nHost: example.com\nContent-Type: application/json" +
-		"\nAuthorization: QiniuAdmin " + su +
-		"\n\n"))
-	exp := h.Sum(nil)
-
-	assert.Equal(t, exp, act)
-}
-
-func Test_SignAdminWithXQiniu(t *testing.T) {
-	req, err := http.NewRequest("GET", "http://example.com/path/to/api?param=value", nil)
-	req.Header.Set("Content-Type", "application/json")
-	req.Header.Set("X-Qiniu-Meta-App", "value")
-
-	act, err := SignAdminRequest(sk, req, su)
-	assert.NoError(t, err)
-
-	h := hmac.New(sha1.New, sk)
-	h.Write([]byte("GET /path/to/api?param=value\nHost: example.com\nContent-Type: application/json" +
-		"\nAuthorization: QiniuAdmin " + su +
-		"\nX-Qiniu-Meta-App: value" +
-		"\n\n"))
-	exp := h.Sum(nil)
-
-	assert.Equal(t, exp, act)
-}
-
 func Test_signQiniuHeaderValues(t *testing.T) {
 
 	w := bytes.NewBuffer(nil)

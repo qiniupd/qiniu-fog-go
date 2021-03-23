@@ -1,28 +1,27 @@
 package main
 
 import (
+	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
-	"time"
 
-	"github.com/qiniupd/qiniu-fog-go/api/client"
+	"github.com/qiniupd/qiniu-fog-go/api"
 )
 
 func main() {
-
+	a := api.NewApi("", "")
+	data := []byte("http://qj9mqal37.hn-bkt.clouddn.com/00c")
 	ctx := context.Background()
-	cli := client.NewQiniuAuthRPCClient(
-		"<ak>",
-		"<sk>",
-		time.Minute)
+	body := bytes.NewReader(data)
+	job, err := a.SendJob(ctx, "POST", "http://filecoin.app-async-gate.qa.qiniu.io/c2u", body, len(data))
 
-	var ret interface{}
-	err := cli.CallWithJson(ctx, &ret,
-		// "GET", "http://app-async-gate.qa.qiniu.io/v1/task/01z001c9tgdhmiri7s00ty373r000191",
-		"POST", "http://test.local.net:19005/test/?url=http://861h53.com2.z0.glb.qiniucdn.com/upload.jpg&cmd=qhash/qhash/md5",
-		nil)
+	fmt.Println(job, err)
+	if err == nil {
+		t, err := a.QueryJob(ctx, job)
+		fmt.Println(t, err)
+		if err == nil {
+			fmt.Println(t.State)
+		}
+	}
 
-	bts, _ := json.Marshal(ret)
-	fmt.Println(string(bts), err)
 }

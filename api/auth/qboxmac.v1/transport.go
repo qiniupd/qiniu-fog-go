@@ -56,39 +56,3 @@ func NewClient(mac *Mac, transport http.RoundTripper) *http.Client {
 	t := NewTransport(mac, transport)
 	return &http.Client{Transport: t}
 }
-
-// ---------------------------------------------------------------------------------------
-
-type AdminTransport struct {
-	mac       Mac
-	suInfo    string
-	Transport http.RoundTripper
-}
-
-func (t *AdminTransport) RoundTrip(req *http.Request) (resp *http.Response, err error) {
-
-	sign, err := SignAdminRequest(t.mac.SecretKey, req, t.suInfo)
-	if err != nil {
-		return
-	}
-
-	auth := "QBoxAdmin " + t.suInfo + ":" + t.mac.AccessKey + ":" + base64.URLEncoding.EncodeToString(sign)
-	req.Header.Set("Authorization", auth)
-	return t.Transport.RoundTrip(req)
-}
-
-func (t *AdminTransport) NestedObject() interface{} {
-
-	return t.Transport
-}
-
-func NewAdminTransport(mac *Mac, suInfo string, transport http.RoundTripper) *AdminTransport {
-
-	if transport == nil {
-		transport = http.DefaultTransport
-	}
-	return &AdminTransport{Transport: transport, mac: *mac, suInfo: suInfo}
-}
-
-// ---------------------------------------------------------------------------------------
-
