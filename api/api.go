@@ -12,12 +12,22 @@ import (
 type Api struct {
 	ak string
 	sk string
+	queryHost string
 }
 
 func NewApi(ak, sk string) *Api{
 	return &Api{
 		ak: ak,
 		sk: sk,
+		queryHost: "https://async.qiniuapp.com/v1/task/",
+	}
+}
+
+func NewApiWithQueryHost(ak, sk, host string) *Api{
+	return &Api{
+		ak: ak,
+		sk: sk,
+		queryHost: host,
 	}
 }
 
@@ -71,7 +81,7 @@ type TaskInfo struct {
 func (a *Api)QueryJob(ctx context.Context, id string) (resp *TaskInfo, err error){
 	cli := client.NewQiniuAuthRPCClient(a.ak, a.sk, time.Minute)
 	t := TaskInfo{}
-	err = cli.CallWithJson(ctx, &t, "GET", "https://async.qiniuapp.com/v1/task/" + id, nil)
+	err = cli.CallWithJson(ctx, &t, "GET", a.queryHost + id, nil)
 	if err != nil {
 		return nil, err
 	}

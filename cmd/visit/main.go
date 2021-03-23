@@ -9,7 +9,9 @@ import (
 )
 
 func main() {
-	a := api.NewApi("", "")
+	a := api.NewApiWithQueryHost("",
+		"",
+		"http://app-async-gate.qa.qiniu.io/v1/task/")
 	data := []byte("http://qj9mqal37.hn-bkt.clouddn.com/00c")
 	ctx := context.Background()
 	body := bytes.NewReader(data)
