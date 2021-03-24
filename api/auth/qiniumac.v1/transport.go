@@ -17,10 +17,15 @@ type Mac struct {
 type Transport struct {
 	mac       Mac
 	Transport http.RoundTripper
+	header http.Header
 }
 
 func (t *Transport) RoundTrip(req *http.Request) (resp *http.Response, err error) {
-
+	if t.header != nil {
+		for k, v := range t.header {
+			req.Header[k] = v
+		}
+	}
 	sign, err := SignRequest(t.mac.SecretKey, req)
 	if err != nil {
 		return
@@ -36,12 +41,12 @@ func (t *Transport) NestedObject() interface{} {
 	return t.Transport
 }
 
-func NewTransport(mac *Mac, transport http.RoundTripper) *Transport {
+func NewTransport(mac *Mac, transport http.RoundTripper, header http.Header) *Transport {
 
 	if transport == nil {
 		transport = http.DefaultTransport
 	}
-	t := &Transport{Transport: transport}
+	t := &Transport{Transport: transport, header: header}
 	if mac == nil {
 		t.mac.AccessKey = ACCESS_KEY
 		t.mac.SecretKey = []byte(SECRET_KEY)
@@ -49,10 +54,4 @@ func NewTransport(mac *Mac, transport http.RoundTripper) *Transport {
 		t.mac = *mac
 	}
 	return t
-}
-
-func NewClient(mac *Mac, transport http.RoundTripper) *http.Client {
-
-	t := NewTransport(mac, transport)
-	return &http.Client{Transport: t}
 }

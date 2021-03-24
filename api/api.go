@@ -36,10 +36,11 @@ type JobResponse struct {
 	Error *string `json:"error,omitempty"`
 }
 
-func (a *Api)SendJob(ctx context.Context, method string, url string, body io.Reader, bodyLength int) (id string, err error){
-	cli := client.NewQiniuAuthRPCClient(a.ak, a.sk, time.Minute)
+func (a *Api)SendJob(ctx context.Context, method string, url string, body io.Reader, bodyLength int, header http.Header) (id string, err error){
+	cli := client.NewQiniuAuthRPCClient(a.ak, a.sk, time.Minute, header)
 	j := JobResponse{}
 	err = cli.CallWith(ctx, &j, method, url, "application/octet-stream", body, bodyLength)
+
 	if err != nil {
 		return "", err
 	}
@@ -79,7 +80,7 @@ type TaskInfo struct {
 }
 
 func (a *Api)QueryJob(ctx context.Context, id string) (resp *TaskInfo, err error){
-	cli := client.NewQiniuAuthRPCClient(a.ak, a.sk, time.Minute)
+	cli := client.NewQiniuAuthRPCClient(a.ak, a.sk, time.Minute, nil)
 	t := TaskInfo{}
 	err = cli.CallWithJson(ctx, &t, "GET", a.queryHost + id, nil)
 	if err != nil {
